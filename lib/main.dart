@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'dart:async';
 import 'widgets/post.dart';
 import 'theme/theme.dart';
 import 'package:flutter/foundation.dart';
+import 'widgets/feed.dart';
 
 void main() => runApp(new MyApp());
 
@@ -41,7 +41,7 @@ class _MainPage extends State<MainPage> with TickerProviderStateMixin {
       body: new TabBarView(
         controller: _controller,
         children: [
-          new InfiniteList(),
+          new Feed(),
           new Post(),
         ],
       ),
@@ -64,69 +64,69 @@ class _MainPage extends State<MainPage> with TickerProviderStateMixin {
   }
 }
 
-class InfiniteList extends StatefulWidget {
-  @override
-  createState() => new _InfiniteList();
-}
+// class InfiniteList extends StatefulWidget {
+//   @override
+//   createState() => new _InfiniteList();
+// }
 
-class _InfiniteList extends State<InfiniteList> {
-  var _suggestions = <WordPair>[];
-  var refreshKey = GlobalKey<RefreshIndicatorState>();
-  // final refreshKey =
+// class _InfiniteList extends State<InfiniteList> {
+//   var _suggestions = <WordPair>[];
+//   var refreshKey = GlobalKey<RefreshIndicatorState>();
+//   // final refreshKey =
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   refreshList();
-  // }
+//   // @override
+//   // void initState() {
+//   //   super.initState();
+//   //   refreshList();
+//   // }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        key: refreshKey,
-        child: _buildSuggestions(),
-        onRefresh: refreshList,
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: RefreshIndicator(
+//         key: refreshKey,
+//         child: _buildSuggestions(),
+//         onRefresh: refreshList,
+//       ),
+//     );
+//   }
 
-  Future<Null> refreshList() async {
-    refreshKey.currentState?.show(atTop: false);
-    await Future.delayed(Duration(seconds: 2));
+//   Future<Null> refreshList() async {
+//     refreshKey.currentState?.show(atTop: false);
+//     await Future.delayed(Duration(seconds: 2));
 
-    setState() {
-      return Scaffold(
-        body: RefreshIndicator(
-          key: refreshKey,
-          child: _buildSuggestions(),
-          onRefresh: refreshList,
-        ),
-      );
-    }
+//     setState() {
+//       return Scaffold(
+//         body: RefreshIndicator(
+//           key: refreshKey,
+//           child: _buildSuggestions(),
+//           onRefresh: refreshList,
+//         ),
+//       );
+//     }
 
-    return null;
-  }
+//     return null;
+//   }
 
-  Widget _buildSuggestions() {
-    return new ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i.isOdd) return new Divider();
-          final index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return _buildRow(_suggestions[index]);
-        });
-  }
+//   Widget _buildSuggestions() {
+//     return new ListView.builder(
+//         padding: const EdgeInsets.all(16.0),
+//         itemBuilder: (context, i) {
+//           if (i.isOdd) return new Divider();
+//           final index = i ~/ 2;
+//           if (index >= _suggestions.length) {
+//             _suggestions.addAll(generateWordPairs().take(10));
+//           }
+//           return _buildRow(_suggestions[index]);
+//         });
+//   }
 
-  Widget _buildRow(WordPair pair) {
-    return new ListTile(
-      title: new Text(
-        pair.asPascalCase,
-        style: TextStyle(fontSize: 18.0),
-      ),
-    );
-  }
-}
+//   Widget _buildRow(WordPair pair) {
+//     return new ListTile(
+//       title: new Text(
+//         pair.asPascalCase,
+//         style: TextStyle(fontSize: 18.0),
+//       ),
+//     );
+//   }
+// }

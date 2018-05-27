@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocation/geolocation.dart';
-import 'dart:async';
+// import 'package:geolocation/geolocation.dart';
+import '../helper/unit.dart';
+import '../helper/database.dart';
 
 class Post extends StatefulWidget {
   @override
@@ -64,28 +65,27 @@ class _Post extends State<Post> {
 
   //This method handles the submission of the form.
   void _handleSubmitted(String text) {
-    Geolocation
-        .currentLocation(accuracy: LocationAccuracy.best)
-        .listen((result) {
-      // if (result.isSuccessful) {
-        print(result.location.latitude);
-        print(result.location.longitude);
-        Scaffold.of(context).showSnackBar(new SnackBar(
-              content: new Text(result.location.latitude.toString() + "," + result.location.longitude.toString()),
-            ));
-      // }
-    });
+    // Geolocation
+    //     .currentLocation(accuracy: LocationAccuracy.best)
+    //     .listen((result) {
+    // if (result.isSuccessful) {
+    // print(result.location.latitude);
+    // print(result.location.longitude);
+    // }
+    // });
     //Check if location service is operational first.
     // if (_isLocationOperationalPressed().isSuccessful) {
-    //   _textController.clear();
-    //   setState(() {
-    //     _isComposing = false;
-    //   });
-    //   print(text);
-    //   print()
-    // } else {
-    //   print("Cannot get location");
-    // }
+    _textController.clear();
+    var current = new DateTime.now();
+    setState(() {
+      _isComposing = false;
+    });
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content:  new Text("$text @ $current"),
+    ));
+    //Creates new unit to encapsulate data.
+    var unit = new Unit(text, 0, current);
+    new Database().post(unit);
   }
 
   //This method checks of location services are operational.

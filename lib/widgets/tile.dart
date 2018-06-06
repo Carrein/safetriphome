@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 
-class Tile extends StatelessWidget {
+class Tile extends StatefulWidget {
   final String text;
   final String time;
+  final int value;
+  
+  @override
+  Tile(this.text, this.time, this.value);
 
-  Tile(this.text, this.time);
+  _Tile createState() => new _Tile(text, time, value);
+}
+
+class _Tile extends State<Tile> {
+  final String text;
+  final String time;
+  final int value;
+
+  _Tile(this.text, this.time, this.value);
 
   @override
   Widget build(BuildContext context) {
-    return _tile(text, time);
-  }
-
-  Widget _tile(String text, String time) {
     return new Container(
       child: new Row(
         children: <Widget>[
@@ -23,6 +31,7 @@ class Tile extends StatelessWidget {
                   child: new Icon(Icons.arrow_drop_up, size: 40.0),
                   onPressed: () => null,
                 ),
+                new Text(value.toString()),
                 new MaterialButton(
                   child: new Icon(Icons.arrow_drop_down, size: 40.0),
                   onPressed: () => null,
@@ -34,8 +43,7 @@ class Tile extends StatelessWidget {
             child: new Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                new Text(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque interdum rutrum sodales. Nullam mattis fermentum libero, non volutpat."),
+                new Text(text),
               ],
             ),
           ),

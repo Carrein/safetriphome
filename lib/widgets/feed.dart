@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tile.dart';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Feed extends StatefulWidget {
   @override
@@ -8,132 +9,69 @@ class Feed extends StatefulWidget {
 }
 
 class _Feed extends State<Feed> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
-  var values = new List<String>();
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
 
-  @override
   Widget build(BuildContext context) {
     var futureBuilder = new FutureBuilder(
-      future: _getData(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-            return new Text('loading...');
-          default:
-            if (snapshot.hasError)
-              return new Text('Error: ${snapshot.error}');
-            else
+        future: _getData(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return new Center(child: new CircularProgressIndicator());
+            case ConnectionState.done:
+            case ConnectionState.active:
+            default:
+              if (snapshot.hasError)
+                return new Text("Error: ${snapshot.error}");
+              else
+                print("Creating view");
               return createListView(context, snapshot);
-        }
-      },
-    );
+          }
+        });
 
     return new Scaffold(
-      key: _scaffoldKey,
       appBar: new AppBar(
-        title: new Text("Home Page"),
+        title: new Text("safetriphome"),
       ),
-      body: new RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: _handleRefresh,
+      body: RefreshIndicator(
+        key: refreshKey,
         child: futureBuilder,
+        onRefresh: refreshList,
       ),
     );
   }
 
-  Future<List<String>> _getData() async {
-    values.add("Horses");
-    values.add("Goats");
-    values.add("Chickens");
-
-    //Mock wait.
-    // await Future.delayed(new Duration(seconds: 3));
-
-    return values;
-  }
-
-  Future<Null> _handleRefresh() async {
-    _refreshIndicatorKey.currentState?.show(atTop: false);
+  Future<Null> refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
     setState(() {
-      // values.add("Strokes");
-      // values.add("Julian");
-      // values.add("Smith");
+      build(context);
     });
-    // await Future.delayed(new Duration(seconds: 3));
     return null;
-  }
-
-  Widget createListView(BuildContext context, AsyncSnapshot snapshot) {
-    List<String> values = snapshot.data;
-    return new ListView.builder(
-      itemCount: values.length,
-      itemBuilder: (BuildContext context, int index) {
-        return new Column(
-          children: <Widget>[
-            new Tile("a","a"),
-            new Divider(
-              height: 2.0,
-            ),
-          ],
-        );
-      },
-    );
   }
 }
 
-//   Widget _tile(String text, String time) {
-//     return new Align(
-//       child: new Container(
-//         // padding: EdgeInsets.all(5.0),
-//         child: new Row(
-//           children: <Widget>[
-//             new Container(
-//               width: 80.0,
-//               child: new Column(
-//                 children: <Widget>[
-//                   new MaterialButton(
-//                     child: new Icon(Icons.arrow_drop_up, size: 40.0),
-//                     onPressed: () => null,
-//                   ),
-//                   new MaterialButton(
-//                     child: new Icon(Icons.arrow_drop_down, size: 40.0),
-//                     onPressed: () => null,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             new Expanded(
-//               child: new Column(
-//                 mainAxisAlignment: MainAxisAlignment.start,
-//                 children: <Widget>[
-//                   new Text(
-//                       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque interdum rutrum sodales. Nullam mattis fermentum libero, non volutpat."),
-//                 ],
-//               ),
-//             ),
-//             new Container(
-//               width: 80.0,
-//               child: new Column(
-//                 children: <Widget>[
-//                   new MaterialButton(
-//                     child: new Icon(Icons.thumb_up),
-//                     height: 40.0,
-//                     onPressed: () => null,
-//                   ),
-//                   new MaterialButton(
-//                     child: new Icon(Icons.short_text),
-//                     height: 40.0,
-//                     onPressed: () => null,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+Future<List<dynamic>> _getData() async {
+  var values = new List<dynamic>();
+  QuerySnapshot querySnapshot =
+      await Firestore.instance.collection("posts").getDocuments();
+  values = querySnapshot.documents.map((x) => x["content"]).toList();
+  return values;
+}
+
+Widget createListView(BuildContext context, AsyncSnapshot snapshot) {
+  List<dynamic> values = snapshot.data;
+  return new ListView.builder(
+    itemCount: values.length,
+    itemBuilder: (BuildContext context, int index) {
+      return new Column(
+        children: <Widget>[
+          new Tile(values[index], "3", 22),
+          new Divider(
+            height: 2.0,
+          ),
+        ],
+      );
+    },
+  );
+}

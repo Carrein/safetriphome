@@ -42,14 +42,14 @@ class _Post extends State<Post> {
               child: new ButtonBar(
             alignment: MainAxisAlignment.start,
             children: <Widget>[
-              new RaisedButton(
+              new FlatButton(
                 child: new Icon(Icons.bubble_chart),
                 //Modifiers.
                 onPressed: _isComposing
                     ? () => _handleSubmitted(_textController.text) //modified
                     : null,
               ),
-              new RaisedButton(
+              new FlatButton(
                 child: new Icon(Icons.save_alt),
                 //Modifiers.
                 onPressed: _isComposing

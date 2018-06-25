@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:geolocation/geolocation.dart';
 import '../helper/unit.dart';
-import '../helper/database.dart';
+// import '../helper/database.dart';
 
 class Post extends StatefulWidget {
   @override
@@ -36,20 +36,19 @@ class _Post extends State<Post> {
               });
             },
           ),
-
           //Buttons are disabled if textfield is empty.
           new ButtonTheme.bar(
               child: new ButtonBar(
             alignment: MainAxisAlignment.start,
             children: <Widget>[
-              new FlatButton(
+              new RaisedButton(
                 child: new Icon(Icons.bubble_chart),
                 //Modifiers.
                 onPressed: _isComposing
                     ? () => _handleSubmitted(_textController.text) //modified
                     : null,
               ),
-              new FlatButton(
+              new RaisedButton(
                 child: new Icon(Icons.save_alt),
                 //Modifiers.
                 onPressed: _isComposing
@@ -65,16 +64,6 @@ class _Post extends State<Post> {
 
   //This method handles the submission of the form.
   void _handleSubmitted(String text) {
-    // Geolocation
-    //     .currentLocation(accuracy: LocationAccuracy.best)
-    //     .listen((result) {
-    // if (result.isSuccessful) {
-    // print(result.location.latitude);
-    // print(result.location.longitude);
-    // }
-    // });
-    //Check if location service is operational first.
-    // if (_isLocationOperationalPressed().isSuccessful) {
     _textController.clear();
     var current = new DateTime.now();
     setState(() {
@@ -85,16 +74,6 @@ class _Post extends State<Post> {
     ));
     //Creates new unit to encapsulate data.
     var unit = new Unit(text, 0, current);
-    new Database().post(unit);
+    // new Database().post(unit);
   }
-
-  //This method checks of location services are operational.
-  // _isLocationOperationalPressed() async {
-  //   final GeolocationResult result = await Geolocation.isLocationOperational();
-  //   if (mounted) {
-  //     setState(() {
-  //       _locationOperationalResult = result;
-  //     });
-  //   }
-  // }
 }

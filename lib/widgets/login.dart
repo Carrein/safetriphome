@@ -63,9 +63,9 @@ class _Login extends State<Login> {
           toggle();
           if (val) {
             clearFields();
-            buildScaffold("login as $_username successfully 🙂");
+            buildScaffold("login as $_username successfully 🙂", Colors.green[700]);
           } else {
-            buildScaffold("hmm, wrong username/password, try again? 😥");
+            buildScaffold("hmm, wrong username/password, try again 😥", Colors.red[700]);
           }
         });
       }
@@ -74,10 +74,10 @@ class _Login extends State<Login> {
           toggle();
           if (val) {
             clearFields();
-            buildScaffold("signup as $_username successfully 🙂");
+            buildScaffold("signup as $_username successfully 🙂", Colors.green[700]);
           } else {
             clearFields();
-            buildScaffold("username already exists, try again? 🤐");
+            buildScaffold("username already exists, try again 🤐", Colors.orange[700]);
           }
         });
       }
@@ -90,9 +90,9 @@ class _Login extends State<Login> {
     _validPassController.clear();
   }
 
-  buildScaffold(val) {
+  buildScaffold(val, color) {
     Scaffold.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.red,
+          backgroundColor: color,
           duration: new Duration(seconds: 3),
           content: Text(val),
         ));

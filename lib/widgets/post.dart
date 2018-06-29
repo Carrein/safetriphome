@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:geolocation/geolocation.dart';
-import '../helper/unit.dart';
-// import '../helper/database.dart';
+import '../helper/post_handler.dart';
 
 class Post extends StatefulWidget {
   @override
@@ -62,18 +60,24 @@ class _Post extends State<Post> {
     );
   }
 
-  //This method handles the submission of the form.
-  void _handleSubmitted(String text) {
+  _handleSubmitted(_text) {
     _textController.clear();
-    var current = new DateTime.now();
     setState(() {
       _isComposing = false;
     });
-    Scaffold.of(context).showSnackBar(new SnackBar(
-      content:  new Text("$text @ $current"),
-    ));
-    //Creates new unit to encapsulate data.
-    var unit = new Unit(text, 0, current);
-    // new Database().post(unit);
+    PostHandler ph = new PostHandler();
+    ph.post(_text).then((val) {
+      val
+          ? buildScaffold("post successful 🙂", Colors.green[700])
+          : buildScaffold("an error occurred 😥", Colors.red[700]);
+    });
+  }
+
+  buildScaffold(val, color) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+          backgroundColor: color,
+          duration: new Duration(seconds: 3),
+          content: Text(val),
+        ));
   }
 }

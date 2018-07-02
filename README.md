@@ -21,13 +21,13 @@ safetriphome is a anonymous social media application.
 - [x] User authentication with verification.
 - [x] Basic CRUD functionality.
 - [x] SSL encryption on HTTP requests.
-- [] Decaying algorithm.
-- [] Upvote/Downvote.
+- [ ] Decaying algorithm.
+- [ ] Upvote/Downvote.
 
 ## Issues.
 
-- [] Geolocation plugin pull request.
-- [] Zero contribtu
+- [ ] Geolocation plugin pull request.
+- [ ] Zero contribtu
 
 ## Built With
 

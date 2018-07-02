@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:dio/dio.dart';
+import 'package:http/http.dart';
+import 'dart:core';
 import 'dart:async';
 import 'dart:io';
-import 'package:http/http.dart';
 
 class PostHandler {
   final url = "https://178.128.211.167";
@@ -10,17 +10,19 @@ class PostHandler {
   Future<bool> post(_content) async {
     final prefs = await SharedPreferences.getInstance();
     bool _value;
+    DateTime now = new DateTime.now();
     Map<String, dynamic> data = {
-      "id": prefs.getString("username"),
+      "user": prefs.getString("username"),
       "content": _content,
       "location": "123",
+      "timestamp": now.toString(),
     };
     
     HttpClient httpClient = new HttpClient()
       ..badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
     IOClient ioClient = new IOClient(httpClient);
-    await ioClient.post(url, body: data).then((response) {
+    await ioClient.post(url + "/post", body: data).then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
     }).whenComplete(() {

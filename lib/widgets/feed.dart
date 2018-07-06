@@ -1,83 +1,101 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'tile.dart';
 import 'dart:async';
+import '../helper/feed_handler.dart';
 
 class Feed extends StatefulWidget {
   @override
-  createState() => new _Feed();
+  _Feed createState() => new _Feed();
 }
 
 class _Feed extends State<Feed> {
-  Widget build(BuildContext context){
+  List<String> items = [];
+  ScrollController _scrollController = new ScrollController();
+  bool isPerformingRequest = false;
+  int count = 1;
+  final max = 10;
+  FeedHandler fh = new FeedHandler();
 
+  @override
+  void initState() {
+    super.initState();
+    _getData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _getData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  _getData() async {
+    if (!isPerformingRequest) {
+      setState(() {
+        isPerformingRequest = true;
+      });
+
+      List<String> newEntries = [];
+      for(int i = 0; i < max; i++){
+        await fh.feed(count).then((response){
+          if(response != null){
+            newEntries.add(response);
+            count++;
+          }
+        });
+      }
+
+      if (newEntries.isEmpty) {
+        double edge = 50.0;
+        double offsetFromBottom = _scrollController.position.maxScrollExtent -
+            _scrollController.position.pixels;
+        if (offsetFromBottom < edge) {
+          _scrollController.animateTo(
+              _scrollController.offset - (edge - offsetFromBottom),
+              duration: new Duration(milliseconds: 500),
+              curve: Curves.easeOut);
+        }
+      }
+      setState(() {
+        items.addAll(newEntries);
+        isPerformingRequest = false;
+      });
+    }
+  }
+
+  Widget _buildProgressIndicator() {
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Center(
+        child: new Opacity(
+          opacity: isPerformingRequest ? 1.0 : 0.0,
+          child: new CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text("Infinite ListView"),
+      ),
+      body: ListView.builder(
+        itemCount: items.length + 1,
+        itemBuilder: (context, index) {
+          if (index == items.length) {
+            return _buildProgressIndicator();
+          } else {
+            return ListTile(title: new Text(items[index]));
+          }
+        },
+        controller: _scrollController,
+      ),
+    );
   }
 }
-
-// class _Feed extends State<Feed> {
-//   var refreshKey = GlobalKey<RefreshIndicatorState>();
-
-//   Widget build(BuildContext context) {
-//     var futureBuilder = new FutureBuilder(
-//         future: _getData(),
-//         builder: (BuildContext context, AsyncSnapshot snapshot) {
-//           switch (snapshot.connectionState) {
-//             case ConnectionState.none:
-//             case ConnectionState.waiting:
-//               return new Center(child: new CircularProgressIndicator());
-//             case ConnectionState.done:
-//             case ConnectionState.active:
-//             default:
-//               if (snapshot.hasError)
-//                 return new Text("Error: ${snapshot.error}");
-//               else
-//                 print("Creating view");
-//               return createListView(context, snapshot);
-//           }
-//         });
-
-//     return new Scaffold(
-//       appBar: new AppBar(
-//         title: new Text("safetriphome"),
-//       ),
-//       body: RefreshIndicator(
-//         key: refreshKey,
-//         child: futureBuilder,
-//         onRefresh: refreshList,
-//       ),
-//     );
-//   }
-
-//   Future<Null> refreshList() async {
-//     refreshKey.currentState?.show(atTop: false);
-//     setState(() {
-//       build(context);
-//     });
-//     return null;
-//   }
-// }
-
-// Future<List<dynamic>> _getData() async {
-//   var values = new List<dynamic>();
-//   QuerySnapshot querySnapshot =
-//       await Firestore.instance.collection("posts").getDocuments();
-//   values = querySnapshot.documents.map((x) => x["content"]).toList();
-//   return values;
-// }
-
-// Widget createListView(BuildContext context, AsyncSnapshot snapshot) {
-//   List<dynamic> values = snapshot.data;
-//   return new ListView.builder(
-//     itemCount: values.length,
-//     itemBuilder: (BuildContext context, int index) {
-//       return new Column(
-//         children: <Widget>[
-//           new Tile(values[index], "3", 22),
-//           new Divider(
-//             height: 2.0,
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }

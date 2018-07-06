@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 
 class Tile extends StatefulWidget {
-  final String text;
-  final String time;
-  final int value;
-  
-  @override
-  Tile(this.text, this.time, this.value);
-
-  _Tile createState() => new _Tile(text, time, value);
+  String _content;
+  Tile(_newContent){
+    this._content = _newContent;
+  }
+  createState() => new _Tile(_content);
 }
 
 class _Tile extends State<Tile> {
-  final String text;
-  final String time;
-  final int value;
+  String _content;
+  bool _isUpvoted = false;
+  int _upvoteCount = 1231;
 
-  _Tile(this.text, this.time, this.value);
+    _Tile(_newContent){
+    this._content = _newContent;
+  }
 
-  @override
+  _toggleUpvote() {
+    setState(() {
+      if (_isUpvoted) {
+        //TODO - upvote count;
+        _isUpvoted = false;
+      } else {
+        //TODO - upvote count;
+        _isUpvoted = true;
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
     return new Container(
       child: new Row(
@@ -31,11 +41,10 @@ class _Tile extends State<Tile> {
                   child: new Icon(Icons.arrow_drop_up, size: 40.0),
                   onPressed: () => null,
                 ),
-                new Text(value.toString()),
-                new MaterialButton(
-                  child: new Icon(Icons.arrow_drop_down, size: 40.0),
-                  onPressed: () => null,
-                ),
+                new Center(
+                  child: Text(_upvoteCount.toString()),
+                )
+                // new Text(_upvoteCount.toString()),
               ],
             ),
           ),
@@ -43,7 +52,7 @@ class _Tile extends State<Tile> {
             child: new Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                new Text(text),
+                new Text(_content),
               ],
             ),
           ),

@@ -5,24 +5,24 @@ import 'dart:async';
 import 'dart:io';
 
 class PostHandler {
-  final url = "https://178.128.211.167";
+  final url = "https://178.128.211.167/post";
 
   Future<bool> post(_content) async {
     final prefs = await SharedPreferences.getInstance();
     bool _value;
-    DateTime now = new DateTime.now();
+    int time = new DateTime.now().millisecondsSinceEpoch;
     Map<String, dynamic> data = {
       "user": prefs.getString("username"),
       "content": _content,
       "location": "123",
-      "timestamp": now.toString(),
+      "timestamp": time.toString(),
     };
     
     HttpClient httpClient = new HttpClient()
       ..badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
     IOClient ioClient = new IOClient(httpClient);
-    await ioClient.post(url + "/post", body: data).then((response) {
+    await ioClient.post(url, body: data).then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
     }).whenComplete(() {

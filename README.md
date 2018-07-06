@@ -27,7 +27,6 @@ safetriphome is a anonymous social media application.
 ## Issues.
 
 - [ ] Geolocation plugin pull request.
-- [ ] Zero contribtu
 
 ## Built With
 

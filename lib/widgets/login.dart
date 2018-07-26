@@ -13,6 +13,8 @@ enum FormType { login, register }
 
 class _Login extends State<Login> {
   static final _formKey = new GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+
   final TextEditingController _userController = new TextEditingController();
   final TextEditingController _passController = new TextEditingController();
   final TextEditingController _validPassController =
@@ -37,12 +39,7 @@ class _Login extends State<Login> {
           toggle();
           return true;
         } else {
-          Scaffold.of(context).showSnackBar(
-                SnackBar(
-                    backgroundColor: Colors.red,
-                    duration: new Duration(seconds: 3),
-                    content: Text("password do not match 😰")),
-              );
+          buildScaffold("password do not match 😰", Colors.orange[200]);
           return false;
         }
       }
@@ -63,21 +60,26 @@ class _Login extends State<Login> {
           toggle();
           if (val) {
             clearFields();
-            buildScaffold("login as $_username successfully 🙂", Colors.green[700]);
+            buildScaffold(
+                "login as $_username successfully 🙂", Colors.green[200]);
+            // Navigator.pop(context);
           } else {
-            buildScaffold("hmm, wrong username/password, try again 😥", Colors.red[700]);
+            buildScaffold(
+                "hmm, wrong username/password, try again 😥", Colors.red[200]);
           }
         });
-      }
-      else{
+      } else {
         _loginHandler.register(_username, _password).then((val) {
           toggle();
           if (val) {
             clearFields();
-            buildScaffold("signup as $_username successfully 🙂", Colors.green[700]);
+            buildScaffold(
+                "signup as $_username successfully 🙂", Colors.green[200]);
+            // Navigator.pop(context);
           } else {
             clearFields();
-            buildScaffold("username already exists, try again 🤐", Colors.orange[700]);
+            buildScaffold(
+                "username already exists, try again 🤐", Colors.orange[200]);
           }
         });
       }
@@ -91,11 +93,11 @@ class _Login extends State<Login> {
   }
 
   buildScaffold(val, color) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-          backgroundColor: color,
-          duration: new Duration(seconds: 3),
-          content: Text(val),
-        ));
+    scaffoldKey.currentState.showSnackBar(SnackBar(
+      backgroundColor: color,
+      duration: new Duration(seconds: 3),
+      content: Text(val),
+    ));
   }
 
   moveToRegister() {
@@ -335,7 +337,9 @@ class _Login extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
+      key: scaffoldKey,
+      // resizeToAvoidBottomPadding: false,
+      appBar: AppBar(),
       body: Form(
         key: _formKey,
         child: Center(

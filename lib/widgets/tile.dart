@@ -1,32 +1,38 @@
 import 'package:flutter/material.dart';
+import '../unit/unit.dart';
+import '../widgets/comment.dart';
 
 class Tile extends StatefulWidget {
-  String _content;
-  Tile(_newContent){
-    this._content = _newContent;
-  }
-  createState() => new _Tile(_content);
+  final Unit unit;
+  Tile(this.unit);
+
+  @override
+  createState() => new _Tile();
 }
 
 class _Tile extends State<Tile> {
-  String _content;
-  bool _isUpvoted = false;
+  // bool _isUpvoted = false;
   int _upvoteCount = 1231;
 
-    _Tile(_newContent){
-    this._content = _newContent;
-  }
+  // _toggleUpvote() {
+  //   setState(() {
+  //     if (_isUpvoted) {
+  //       //TODO - upvote count;
+  //       _isUpvoted = false;
+  //     } else {
+  //       //TODO - upvote count;
+  //       _isUpvoted = true;
+  //     }
+  //   });
+  // }
 
-  _toggleUpvote() {
-    setState(() {
-      if (_isUpvoted) {
-        //TODO - upvote count;
-        _isUpvoted = false;
-      } else {
-        //TODO - upvote count;
-        _isUpvoted = true;
-      }
-    });
+  test() {
+    // setState(() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => new Comment(widget.unit)),
+      );
+    // });
   }
 
   Widget build(BuildContext context) {
@@ -52,7 +58,7 @@ class _Tile extends State<Tile> {
             child: new Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                new Text(_content),
+                new Text(widget.unit.content),
               ],
             ),
           ),
@@ -68,7 +74,7 @@ class _Tile extends State<Tile> {
                 new MaterialButton(
                   child: new Icon(Icons.short_text),
                   height: 40.0,
-                  onPressed: () => null,
+                  onPressed: () => test(),
                 ),
               ],
             ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'widgets/post.dart';
 import 'theme/theme.dart';
 import 'package:flutter/foundation.dart';
-import 'widgets/feed.dart';
+import 'widgets/screen.dart';
 import 'widgets/login.dart';
+import 'widgets/post.dart';
+import 'helper/preference_handler.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -26,44 +26,80 @@ class MainPage extends StatefulWidget {
   createState() => new _MainPage();
 }
 
-class _MainPage extends State<MainPage> with TickerProviderStateMixin {
-  TabController _controller;
-  int _tab = 0;
+class _MainPage extends State<MainPage> {
+  Choice _selectedChoice = choices[0];
+  // PreferenceHandler ph = new PreferenceHandler();
+  String _username = "Guest";
 
   @override
-  void initState() {
+  initState() {
     super.initState();
-    _controller = new TabController(length: 3, vsync: this);
+    _setUser();
+  }
+
+  _setUser() {
+    PreferenceHandler.exist("username").then((response) {
+      if (response.isNotEmpty) {
+        setState(() {
+          _username = response;
+        });
+      }
+    });
+  }
+
+  _select(Choice choice) {
+    setState(() {
+      _selectedChoice = choice;
+      Navigator
+          .push(
+        context,
+        MaterialPageRoute(builder: (context) => _selectedChoice.page),
+      )
+          .then((response) {
+        setState(() {
+          _setUser();
+        });
+      });
+      _setUser();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new TabBarView(
-        controller: _controller,
-        children: [
-          new Login(),
-          new Feed(),
-          new Post(),
+    // return MaterialApp(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_username),
+        actions: <Widget>[
+          PopupMenuButton<Choice>(
+            onSelected: _select,
+            itemBuilder: (BuildContext context) {
+              return choices.map((Choice choice) {
+                return PopupMenuItem(
+                  value: choice,
+                  child: Text(choice.title),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
-      bottomNavigationBar: new BottomNavigationBar(
-        onTap: (int value) {
-          _controller.animateTo(value);
-          setState(() {
-            _tab = value;
-          });
-        },
-        currentIndex: _tab,
-        items: [
-          new BottomNavigationBarItem(
-              icon: new Icon(Icons.add), title: new Text("trends")),
-          new BottomNavigationBarItem(
-              icon: new Icon(Icons.location_on), title: new Text("feed")),
-          new BottomNavigationBarItem(
-              icon: new Icon(Icons.location_on), title: new Text("feed")),
-        ],
+      body: Container(
+        child: new Screen(),
       ),
     );
+    // );
   }
 }
+
+class Choice {
+  Choice({this.title, this.page});
+
+  final String title;
+  final Widget page;
+}
+
+List<Choice> choices = <Choice>[
+  Choice(title: 'Login', page: new Login()),
+  Choice(title: 'Contact', page: new Post()),
+];

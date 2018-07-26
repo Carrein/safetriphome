@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import '../helper/feed_handler.dart';
+import '../widgets/tile.dart';
+import '../unit/unit.dart';
+import '../global/globals.dart' as globals;
+import 'package:geolocation/geolocation.dart';
 
 class Feed extends StatefulWidget {
+  final refresh;
+  Feed(this.refresh);
+
   @override
   _Feed createState() => new _Feed();
 }
 
-class _Feed extends State<Feed> {
-  List<String> items = [];
-  ScrollController _scrollController = new ScrollController();
-  bool isPerformingRequest = false;
-  int count = 1;
-  final max = 10;
-  FeedHandler fh = new FeedHandler();
+// class _Feed extends State<Feed> with ChangeNotifier {}
+
+class _Feed extends State<Feed> with ChangeNotifier {
+  List<Unit> items = [];
+  var counter = 0;
+  var _scrollController = new ScrollController();
+  var isPerformingRequest = false;
+  var max = 10;
+  var fh = new FeedHandler();
+  var latitude;
+  var longtitude;
 
   @override
   void initState() {
@@ -25,12 +35,22 @@ class _Feed extends State<Feed> {
         _getData();
       }
     });
+    widget.refresh.addListener(_refreshData);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
+    widget.refresh.removeListener(_refreshData);
+    _scrollController.dispose();
+  }
+
+  _refreshData() {
+    counter = 0;
+    setState((){
+      items = [];
+      _getData();
+    });
   }
 
   _getData() async {
@@ -39,31 +59,50 @@ class _Feed extends State<Feed> {
         isPerformingRequest = true;
       });
 
-      List<String> newEntries = [];
-      for(int i = 0; i < max; i++){
-        await fh.feed(count).then((response){
-          if(response != null){
-            newEntries.add(response);
-            count++;
+      List<Unit> newEntries = [];
+
+      final GeolocationResult result =
+          await Geolocation.isLocationOperational();
+      if (result.isSuccessful) {
+        Geolocation
+            .singleLocationUpdate(accuracy: LocationAccuracy.best)
+            .listen((response) async {
+          if (response.isSuccessful) {
+            latitude = response.location.latitude.toString();
+            longtitude = response.location.longitude.toString();
+            print(longtitude);
+            print(latitude);
+
+            await fh
+                .feed(globals.distance, counter, latitude, longtitude)
+                .then((response) {
+              if (response.isNotEmpty) {
+                newEntries.addAll(response);
+                counter++;
+              } else {
+                print("empty");
+              }
+            });
+
+            if (newEntries.isEmpty) {
+              double edge = 50.0;
+              double offsetFromBottom =
+                  _scrollController.position.maxScrollExtent -
+                      _scrollController.position.pixels;
+              if (offsetFromBottom < edge) {
+                _scrollController.animateTo(
+                    _scrollController.offset - (edge - offsetFromBottom),
+                    duration: new Duration(milliseconds: 500),
+                    curve: Curves.easeOut);
+              }
+            }
+            setState(() {
+              items.addAll(newEntries);
+              isPerformingRequest = false;
+            });
           }
         });
       }
-
-      if (newEntries.isEmpty) {
-        double edge = 50.0;
-        double offsetFromBottom = _scrollController.position.maxScrollExtent -
-            _scrollController.position.pixels;
-        if (offsetFromBottom < edge) {
-          _scrollController.animateTo(
-              _scrollController.offset - (edge - offsetFromBottom),
-              duration: new Duration(milliseconds: 500),
-              curve: Curves.easeOut);
-        }
-      }
-      setState(() {
-        items.addAll(newEntries);
-        isPerformingRequest = false;
-      });
     }
   }
 
@@ -81,21 +120,16 @@ class _Feed extends State<Feed> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text("Infinite ListView"),
-      ),
-      body: ListView.builder(
-        itemCount: items.length + 1,
-        itemBuilder: (context, index) {
-          if (index == items.length) {
-            return _buildProgressIndicator();
-          } else {
-            return ListTile(title: new Text(items[index]));
-          }
-        },
-        controller: _scrollController,
-      ),
+    return ListView.builder(
+      itemCount: items.length + 1,
+      itemBuilder: (context, index) {
+        if (index == items.length) {
+          return _buildProgressIndicator();
+        } else {
+          return Tile(items[index]);
+        }
+      },
+      controller: _scrollController,
     );
   }
 }

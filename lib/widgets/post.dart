@@ -14,7 +14,7 @@ class _Post extends State<Post> {
   Widget build(BuildContext context) {
     return new Container(
       padding: new EdgeInsets.symmetric(vertical: 80.0, horizontal: 60.0),
-      child: new Column(
+      child: new ListView(
         children: <Widget>[
           new TextField(
             decoration: new InputDecoration(
@@ -24,8 +24,8 @@ class _Post extends State<Post> {
             controller: _textController,
             onSubmitted: _handleSubmitted,
             keyboardType: TextInputType.multiline,
-            maxLines: 4,
-            maxLength: 140,
+            maxLines: null,
+            maxLength: 1000,
             //Modifiers.
             onChanged: (String text) {
               setState(() {
@@ -66,10 +66,8 @@ class _Post extends State<Post> {
       _isComposing = false;
     });
     PostHandler ph = new PostHandler();
-    ph.post(_text).then((val) {
-      val
-          ? buildScaffold("post successful 🙂", Colors.green[700])
-          : buildScaffold("an error occurred 😥", Colors.red[700]);
+    ph.post(_text, 0).then((response) {
+      buildScaffold(response, Colors.red[200]);
     });
   }
 
